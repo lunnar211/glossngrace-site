@@ -41,7 +41,12 @@ export default function ServicesPage() {
                   <article className="flex h-full flex-col rounded-3xl border border-blush bg-white p-6 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="font-display text-xl font-semibold">
-                        {s.name}
+                        <Link
+                          href={`/services/${s.slug}`}
+                          className="transition hover:text-gold"
+                        >
+                          {s.name}
+                        </Link>
                       </h3>
                       <p className="shrink-0 text-lg font-semibold text-gold">
                         from ${s.priceFrom}
@@ -53,12 +58,20 @@ export default function ServicesPage() {
                     <p className="mt-3 text-sm font-medium text-plum-soft">
                       {formatDuration(s.durationMin)}
                     </p>
-                    <Link
-                      href={`/book?service=${encodeURIComponent(s.name)}`}
-                      className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full bg-gold text-[15px] font-semibold text-white transition hover:bg-plum"
-                    >
-                      Book This Service
-                    </Link>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href={`/services/${s.slug}`}
+                        className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-full border border-plum/25 px-4 text-[15px] font-semibold transition hover:border-gold hover:text-gold"
+                      >
+                        View details
+                      </Link>
+                      <Link
+                        href={`/book?service=${encodeURIComponent(s.name)}`}
+                        className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-gold px-4 text-[15px] font-semibold text-white transition hover:bg-plum"
+                      >
+                        Book This Service
+                      </Link>
+                    </div>
                   </article>
                 </Reveal>
               ))}

@@ -50,6 +50,9 @@ export default function BookingForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [urgent, setUrgent] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
+  const [area, setArea] = useState("");
   const [policy, setPolicy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [booked, setBooked] = useState<string[]>([]);
@@ -121,6 +124,9 @@ export default function BookingForm() {
           booking_date: date,
           booking_time: time,
           notes: notes.trim(),
+          urgent,
+          payment_method: paymentMethod,
+          area: area.trim(),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -144,6 +150,9 @@ export default function BookingForm() {
     setName("");
     setPhone("");
     setNotes("");
+    setUrgent(false);
+    setPaymentMethod("cod");
+    setArea("");
     setPolicy(false);
     setErrors({});
     setApiError("");
@@ -180,6 +189,22 @@ export default function BookingForm() {
             <dt className="text-plum-soft">Price from</dt>
             <dd className="font-semibold text-gold">${chosen.priceFrom}</dd>
           </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-plum-soft">Payment</dt>
+            <dd className="font-semibold">Cash at salon</dd>
+          </div>
+          {urgent && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-plum-soft">Speed</dt>
+              <dd className="font-semibold">⚡ Fast — need it soon</dd>
+            </div>
+          )}
+          {area.trim() && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-plum-soft">Area</dt>
+              <dd className="font-semibold">{area.trim()}</dd>
+            </div>
+          )}
         </dl>
         <button
           type="button"
@@ -431,6 +456,66 @@ export default function BookingForm() {
                   className="mt-2 w-full rounded-xl border border-blush bg-ivory px-4 py-3 text-base"
                 />
               </div>
+              <div>
+                <label htmlFor="booking-area" className="block font-medium">
+                  Your area / city{" "}
+                  <span className="font-normal text-plum-soft">(optional)</span>
+                </label>
+                <input
+                  id="booking-area"
+                  type="text"
+                  autoComplete="address-level2"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  placeholder="e.g. Damak, Kathmandu"
+                  maxLength={80}
+                  className="mt-2 min-h-[48px] w-full rounded-xl border border-blush bg-ivory px-4 text-base"
+                />
+              </div>
+              <fieldset>
+                <legend className="block font-medium">Payment</legend>
+                <div className="mt-2 space-y-2">
+                  <label className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-blush bg-ivory px-4">
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
+                      className="h-5 w-5 accent-[#c9a227]"
+                    />
+                    <span>
+                      <span className="font-medium">Cash at salon (COD)</span>
+                      <span className="block text-sm text-plum-soft">
+                        Pay when your appointment is done.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="flex min-h-[48px] items-center gap-3 rounded-xl border border-blush bg-ivory/60 px-4 opacity-60">
+                    <input type="radio" name="payment" disabled className="h-5 w-5" />
+                    <span>
+                      <span className="font-medium">Pay online</span>
+                      <span className="ml-2 rounded-full bg-blush px-2 py-0.5 text-xs font-semibold text-plum">
+                        coming soon
+                      </span>
+                      <span className="block text-sm text-plum-soft">
+                        Online payment is not available yet.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+              <label className="flex items-start gap-3 text-[15px] leading-relaxed">
+                <input
+                  type="checkbox"
+                  checked={urgent}
+                  onChange={(e) => setUrgent(e.target.checked)}
+                  className="mt-1 h-5 w-5 shrink-0 accent-[#c9a227]"
+                />
+                <span>
+                  <strong>I need it fast ⚡</strong> — please fit me in as soon
+                  as you can.
+                </span>
+              </label>
               <label className="flex items-start gap-3 text-[15px] leading-relaxed">
                 <input
                   type="checkbox"

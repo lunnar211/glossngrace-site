@@ -1,10 +1,43 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SERVICES, INSTAGRAM_URL, formatDuration } from "@/lib/services";
+import { createServiceClient } from "@/lib/supabase/service";
+import { isHowToVideoAvailable } from "@/lib/video";
 import Reveal from "@/components/reveal";
 import TiltCard from "@/components/tilt-card";
 import PolishBottle from "@/components/polish-bottle";
 import GalleryMarquee from "@/components/gallery-marquee";
+import HowToBookVideo from "@/components/how-to-book-video";
+import FeedbackForm from "@/components/feedback-form";
+
+// Reviews change when the salon approves new feedback, so this page is
+// rendered per request. Any Supabase failure degrades to "coming soon".
+export const dynamic = "force-dynamic";
+
+type VisibleFeedback = {
+  id: string;
+  name: string;
+  rating: number;
+  message: string;
+  service: string | null;
+  created_at: string;
+};
+
+async function getVisibleFeedback(): Promise<VisibleFeedback[]> {
+  try {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from("glossngrace_feedback")
+      .select("id, name, rating, message, service, created_at")
+      .eq("visible", true)
+      .order("created_at", { ascending: false })
+      .limit(6);
+    if (error || !data) return [];
+    return data as VisibleFeedback[];
+  } catch {
+    return [];
+  }
+}
 
 const PREVIEW = [
   "Classic Manicure",
@@ -30,7 +63,11 @@ const TRUST = [
   { title: "Clean, careful work", text: "Slow, neat and never rushed." },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const [reviews, videoAvailable] = await Promise.all([
+    getVisibleFeedback(),
+    isHowToVideoAvailable(),
+  ]);
   const preview = PREVIEW.map(
     (name) => SERVICES.find((s) => s.name === name)!
   );
@@ -126,7 +163,14 @@ export default function Home() {
             <Reveal key={s.name} delay={i * 60}>
               <TiltCard className="h-full">
                 <article className="flex h-full flex-col rounded-3xl border border-blush bg-white p-6 shadow-sm">
-                  <h3 className="font-display text-xl font-semibold">{s.name}</h3>
+                  <h3 className="font-display text-xl font-semibold">
+                    <Link
+                      href={`/services/${s.slug}`}
+                      className="transition hover:text-gold"
+                    >
+                      {s.name}
+                    </Link>
+                  </h3>
                   <p className="mt-1 flex-1 text-[15px] text-plum-soft">{s.short}</p>
                   <p className="mt-4 text-lg font-semibold text-gold">
                     from ${s.priceFrom}
@@ -135,8 +179,14 @@ export default function Home() {
                     </span>
                   </p>
                   <Link
+                    href={`/services/${s.slug}`}
+                    className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-full border border-plum/25 text-[15px] font-semibold transition hover:border-gold hover:text-gold"
+                  >
+                    View details
+                  </Link>
+                  <Link
                     href={`/book?service=${encodeURIComponent(s.name)}`}
-                    className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full border border-gold text-[15px] font-semibold text-gold transition hover:bg-gold hover:text-white"
+                    className="mt-2 inline-flex min-h-[44px] items-center justify-center rounded-full border border-gold text-[15px] font-semibold text-gold transition hover:bg-gold hover:text-white"
                   >
                     Book this service
                   </Link>
@@ -145,6 +195,25 @@ export default function Home() {
             </Reveal>
           ))}
         </div>
+      </section>
+
+      {/* Watch how to book */}
+      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <Reveal>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gold">
+            Watch how to book
+          </p>
+          <h2 className="mt-2 font-display text-3xl font-semibold md:text-4xl">
+            Booked in, in 30 seconds
+          </h2>
+          <p className="mt-2 max-w-xl text-plum-soft">
+            A quick look at booking on this site — no account, no phone call
+            needed to start.
+          </p>
+        </Reveal>
+        <Reveal delay={80} className="mt-6">
+          <HowToBookVideo available={videoAvailable} />
+        </Reveal>
       </section>
 
       {/* Gallery marquee */}
@@ -225,7 +294,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews placeholder + Instagram */}
+      {/* Reviews + Instagram */}
       <section className="border-y border-blush bg-blush/40">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6">
           <Reveal>
@@ -233,12 +302,36 @@ export default function Home() {
               Reviews
             </p>
             <h2 className="mt-2 font-display text-3xl font-semibold">
-              Reviews coming soon
+              {reviews.length > 0 ? "What our clients say" : "Reviews coming soon"}
             </h2>
-            <p className="mt-3 leading-relaxed text-plum-soft">
-              We are new, and our first reviews are still on their way. Had your
-              nails done with us? Be the first to share yours.
-            </p>
+            {reviews.length === 0 ? (
+              <p className="mt-3 leading-relaxed text-plum-soft">
+                We are new, and our first reviews are still on their way. Had
+                your nails done with us? Be the first to share yours.
+              </p>
+            ) : (
+              <ul className="mt-5 space-y-4">
+                {reviews.map((r) => (
+                  <li
+                    key={r.id}
+                    className="rounded-2xl border border-blush bg-white p-5 shadow-sm"
+                  >
+                    <p className="text-gold" aria-label={`${r.rating} out of 5 stars`}>
+                      {"★".repeat(r.rating)}
+                      {"☆".repeat(5 - r.rating)}
+                    </p>
+                    <p className="mt-2 leading-relaxed">“{r.message}”</p>
+                    <p className="mt-2 text-sm font-medium text-plum-soft">
+                      — {r.name}
+                      {r.service ? ` · ${r.service}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-6">
+              <FeedbackForm />
+            </div>
             <a
               href={INSTAGRAM_URL}
               target="_blank"

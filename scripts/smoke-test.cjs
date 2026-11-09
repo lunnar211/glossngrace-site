@@ -2,13 +2,13 @@
  * Checks: /, /services, /book, /gallery, /about return 200 with no
  * console errors or page errors; booking form shows validation errors
  * on empty submit. Does NOT submit a real booking. */
-const { chromium } = require('playwright-core')
 
 const BASE = 'http://127.0.0.1:3100'
 const CHROME =
   '/home/hatch/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome'
 
 async function main() {
+  const { chromium } = await import('playwright-core')
   const browser = await chromium.launch({
     executablePath: CHROME,
     args: ['--no-sandbox', '--disable-gpu'],
@@ -41,9 +41,12 @@ async function main() {
 
   await checkPage('/', { width: 1280, height: 800 })
   await checkPage('/services', { width: 1280, height: 800 })
+  await checkPage('/services/classic-manicure', { width: 1280, height: 800 })
+  await checkPage('/services/bridal-nails', { width: 1280, height: 800 })
   await checkPage('/book', { width: 1280, height: 800 })
   await checkPage('/gallery', { width: 1280, height: 800 })
   await checkPage('/about', { width: 1280, height: 800 })
+  await checkPage('/admin', { width: 1280, height: 800 })
   // mobile home: check for horizontal overflow
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
   const mpage = await mctx.newPage()
@@ -91,6 +94,50 @@ async function main() {
   if (!formOk) failed = true
   results.push({ path: '/book validation', viewport: '1280x800', status: 200, consoleErrors: [], pageErrors: bErrors, checks: { serviceError: errVisible, dateError: dateErrVisible, nameError: nameErr, phoneError: phoneErr }, ok: formOk })
   await bctx.close()
+
+  // Feedback form: empty submit must show a validation error
+  const fctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  const fpage = await fctx.newPage()
+  const fErrors = []
+  fpage.on('pageerror', (e) => fErrors.push(String(e)))
+  await fpage.goto(BASE + '/', { waitUntil: 'networkidle', timeout: 30000 })
+  await fpage.getByRole('button', { name: 'Send feedback' }).click()
+  await fpage.waitForTimeout(500)
+  const fbNameErr = await fpage.getByText('Please enter your name.').isVisible().catch(() => false)
+  const fbFormOk = fbNameErr && fErrors.length === 0
+  if (!fbFormOk) failed = true
+  results.push({ path: '/ feedback validation', viewport: '1280x800', status: 200, consoleErrors: [], pageErrors: fErrors, checks: { nameError: fbNameErr }, ok: fbFormOk })
+  await fctx.close()
+
+  // Admin logged out: must show the sign-in form, not the dashboard
+  const actx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  const apage = await actx.newPage()
+  const aErrors = []
+  apage.on('pageerror', (e) => aErrors.push(String(e)))
+  const ares = await apage.goto(BASE + '/admin', { waitUntil: 'networkidle', timeout: 30000 })
+  await apage.waitForTimeout(500)
+  const signInVisible = await apage.getByText('Admin sign in').isVisible().catch(() => false)
+  const signInBtn = await apage.getByRole('button', { name: 'Sign in' }).isVisible().catch(() => false)
+  const noDashboard = await apage.getByText('No bookings yet.').isVisible().catch(() => false).then((v) => !v)
+  const adminOk = ares.status() === 200 && signInVisible && signInBtn && noDashboard && aErrors.length === 0
+  if (!adminOk) failed = true
+  results.push({ path: '/admin logged-out', viewport: '1280x800', status: ares.status(), consoleErrors: [], pageErrors: aErrors, checks: { signInVisible, signInBtn, noDashboard }, ok: adminOk })
+  await actx.close()
+
+  // Service detail page: shows the animated visual, includes list, book button
+  const sctx = await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  const spage = await sctx.newPage()
+  const sErrors = []
+  spage.on('pageerror', (e) => sErrors.push(String(e)))
+  await spage.goto(BASE + '/services/gel-manicure', { waitUntil: 'networkidle', timeout: 30000 })
+  await spage.waitForTimeout(500)
+  const includesVisible = await spage.getByText("What's included").isVisible().catch(() => false)
+  const bookBtn = await spage.getByRole('link', { name: 'Book Gel Manicure' }).isVisible().catch(() => false)
+  const previewNote = await spage.getByText('Animated preview of the look').isVisible().catch(() => false)
+  const serviceOk = includesVisible && bookBtn && previewNote && sErrors.length === 0
+  if (!serviceOk) failed = true
+  results.push({ path: '/services/gel-manicure content', viewport: '1280x800', status: 200, consoleErrors: [], pageErrors: sErrors, checks: { includesVisible, bookBtn, previewNote }, ok: serviceOk })
+  await sctx.close()
 
   await browser.close()
   for (const r of results) {

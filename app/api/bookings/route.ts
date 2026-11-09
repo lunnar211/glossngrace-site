@@ -69,6 +69,9 @@ export async function POST(request: Request) {
   const booking_date = String(data.booking_date ?? '').trim()
   const booking_time = String(data.booking_time ?? '').trim()
   const notes = String(data.notes ?? '').trim()
+  const urgent = data.urgent === true
+  const payment_method = String(data.payment_method ?? 'cod').trim()
+  const area = String(data.area ?? '').trim()
 
   if (name.length < 2 || name.length > 80) {
     return NextResponse.json({ error: 'Please enter your name.' }, { status: 400 })
@@ -88,6 +91,18 @@ export async function POST(request: Request) {
   if (notes.length > 500) {
     return NextResponse.json({ error: 'Notes are too long.' }, { status: 400 })
   }
+  if (payment_method === 'online') {
+    return NextResponse.json(
+      { error: 'Online payment is not available yet — please choose cash at salon.' },
+      { status: 400 }
+    )
+  }
+  if (payment_method !== 'cod') {
+    return NextResponse.json({ error: 'Please choose a payment method.' }, { status: 400 })
+  }
+  if (area.length > 80) {
+    return NextResponse.json({ error: 'Area is too long.' }, { status: 400 })
+  }
 
   const supabase = createServiceClient()
   const { data: row, error } = await supabase
@@ -100,6 +115,9 @@ export async function POST(request: Request) {
       booking_time,
       notes: notes || null,
       status: 'pending',
+      urgent,
+      payment_method,
+      area: area || null,
     })
     .select('id')
     .single()

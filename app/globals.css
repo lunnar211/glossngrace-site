@@ -16,6 +16,7 @@
   --animate-marquee: marquee 38s linear infinite;
   --animate-floaty: floaty 6s ease-in-out infinite;
   --animate-sway: sway 9s ease-in-out infinite;
+  --animate-spin-slow: spin-slow 26s linear infinite;
 
   @keyframes marquee {
     from {
@@ -43,6 +44,14 @@
       transform: rotateY(16deg) rotate(2deg);
     }
   }
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 html {
@@ -66,7 +75,8 @@ body {
   }
   .animate-marquee,
   .animate-floaty,
-  .animate-sway {
+  .animate-sway,
+  .animate-spin-slow {
     animation: none !important;
   }
   /* Reveal content is always visible; no fade for reduced motion. */

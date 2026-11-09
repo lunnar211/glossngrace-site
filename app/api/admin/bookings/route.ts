@@ -13,7 +13,7 @@ export async function GET() {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('glossngrace_bookings')
-    .select('id, name, phone, service, booking_date, booking_time, notes, status, created_at')
+    .select('id, name, phone, service, booking_date, booking_time, notes, status, created_at, urgent, payment_method, area, verified, location_verified')
     .order('booking_date', { ascending: true })
     .order('booking_time', { ascending: true })
     .limit(500)
@@ -39,15 +39,30 @@ export async function PATCH(request: Request) {
 
   const data = body as Record<string, unknown>
   const id = String(data.id ?? '').trim()
-  const status = String(data.status ?? '').trim()
-  if (!id || !(STATUSES as readonly string[]).includes(status)) {
-    return NextResponse.json({ error: 'Invalid booking or status.' }, { status: 400 })
+  if (!id) {
+    return NextResponse.json({ error: 'Invalid booking.' }, { status: 400 })
+  }
+
+  // Status is optional when only toggling verification flags.
+  const updates: Record<string, unknown> = {}
+  if (data.status !== undefined) {
+    const status = String(data.status).trim()
+    if (!(STATUSES as readonly string[]).includes(status)) {
+      return NextResponse.json({ error: 'Invalid booking or status.' }, { status: 400 })
+    }
+    updates.status = status
+  }
+  if (typeof data.verified === 'boolean') updates.verified = data.verified
+  if (typeof data.location_verified === 'boolean')
+    updates.location_verified = data.location_verified
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'Nothing to update.' }, { status: 400 })
   }
 
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('glossngrace_bookings')
-    .update({ status })
+    .update(updates)
     .eq('id', id)
 
   if (error) {

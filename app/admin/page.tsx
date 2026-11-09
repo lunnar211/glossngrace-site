@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { getAdminUser } from '@/lib/supabase/server'
 import AdminLogin from '@/components/admin-login'
 import AdminBookings from '@/components/admin-bookings'
+import AdminFeedback from '@/components/admin-feedback'
+import AdminTodos from '@/components/admin-todos'
 
 // Hidden panel: never linked from the public site, never indexed.
 export const metadata: Metadata = {
@@ -23,6 +25,8 @@ export default async function AdminPage() {
   return (
     <main className="min-h-screen bg-[#fff8f6] px-4 py-8">
       <AdminBookings email={admin.email ?? ''} />
+      <AdminFeedback />
+      <AdminTodos />
     </main>
   )
 }
