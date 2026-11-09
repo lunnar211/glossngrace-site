@@ -26,14 +26,14 @@ export default function AboutPage() {
           <div className="overflow-hidden rounded-[2rem] shadow-lg">
             <Image
               src="/images/profile.jpg"
-              alt="The nail artist behind GlossnGrace"
+              alt="GlossnGrace illustrated brand art"
               width={800}
               height={800}
               className="aspect-square w-full object-cover"
             />
           </div>
           <p className="mt-3 text-center text-sm text-plum-soft">
-            The artist behind GlossnGrace
+            Illustrated brand art
           </p>
         </Reveal>
 

@@ -74,8 +74,8 @@ export default function GalleryPage() {
         Looks we love
       </h1>
       <p className="mt-3 max-w-2xl text-lg leading-relaxed text-plum-soft">
-        Real looks from our chair. Like one? Book it — the link under each
-        photo takes you straight to booking that service.
+        Looks we love. Like one? Book it — the link under each photo takes
+        you straight to booking that service.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="Filter looks">

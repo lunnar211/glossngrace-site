@@ -220,10 +220,10 @@ export default async function Home() {
       <section className="py-6">
         <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="font-display text-3xl font-semibold md:text-4xl">
-            Fresh from the chair
+            Fresh inspiration
           </h2>
           <p className="mt-2 text-plum-soft">
-            A few of our recent looks — tap any look in the gallery to book it.
+            A few looks we love — tap any look in the gallery to book it.
           </p>
         </Reveal>
         <div className="mt-6">

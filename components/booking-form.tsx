@@ -96,6 +96,8 @@ export default function BookingForm() {
     const next: Record<string, string> = {};
     if (current === 1 && !service) next.service = "Please choose a service.";
     if (current === 2 && !date) next.date = "Please pick a date.";
+    else if (current === 2 && date < today)
+      next.date = "Please pick a date from today onwards.";
     if (current === 3 && !time) next.time = "Please pick a time.";
     setErrors(next);
     if (Object.keys(next).length === 0) setStep(current + 1);
