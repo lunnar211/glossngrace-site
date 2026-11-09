@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #fff9f7;
+  --color-blush: #f7dce3;
+  --color-blush-deep: #f3c9d6;
+  --color-gold: #c9a227;
+  --color-gold-soft: #d4af37;
+  --color-gold-light: #efe3b0;
+  --color-plum: #3d2b2b;
+  --color-plum-soft: #6f5252;
+
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-floaty: floaty 6s ease-in-out infinite;
+  --animate-sway: sway 9s ease-in-out infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(2deg);
+    }
+  }
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotateY(-16deg) rotate(-2deg);
+    }
+    50% {
+      transform: rotateY(16deg) rotate(2deg);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-plum);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-blush);
+  color: var(--color-plum);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-marquee,
+  .animate-floaty,
+  .animate-sway {
+    animation: none !important;
+  }
+  /* Reveal content is always visible; no fade for reduced motion. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
