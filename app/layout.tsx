@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Jost } from "next/font/google";
 import "./globals.css";
-import SiteHeader from "@/components/site-header";
-import SiteFooter from "@/components/site-footer";
+import SiteChrome from "@/components/site-chrome";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -37,17 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${playfair.variable} ${jost.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-ivory font-sans text-plum">
-        <SiteHeader />
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
-        <SiteFooter />
-        {/* Sticky mobile Book Now bar */}
-        <a
-          href="/book"
-          aria-label="Book now"
-          className="fixed inset-x-0 bottom-0 z-40 flex min-h-[56px] items-center justify-center bg-gold text-base font-semibold tracking-wide text-white md:hidden"
-        >
-          Book Now
-        </a>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
