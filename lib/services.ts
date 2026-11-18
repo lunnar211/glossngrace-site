@@ -15,6 +15,12 @@ export type Service = {
   description: string
   /** Theme colour for the animated service visual (hex). */
   theme: string
+  /** Photo from public/images/ shown on the service page (replaces the
+   *  old CSS bottle illustration). Acrylic + extensions reuse the
+   *  closest existing photos — no new photos exist yet. */
+  image: string
+  /** Alt text for the service photo. */
+  imageAlt: string
   /** Short, honest list of what the appointment includes. */
   includes: string[]
 }
@@ -30,6 +36,8 @@ export const SERVICES: Service[] = [
     description:
       'Shape, cuticle care, a relaxing hand massage and your choice of polish — the timeless tidy-up.',
     theme: '#e78aa5',
+    image: '/images/hero.webp',
+    imageAlt: 'Blush pink nails with gold foil tips',
     includes: [
       'Nail shaping and filing',
       'Cuticle care',
@@ -47,6 +55,8 @@ export const SERVICES: Service[] = [
     description:
       'A glossy, chip-resistant gel finish that stays beautiful for weeks. Shape and cuticle care included.',
     theme: '#d6336c',
+    image: '/images/chrome.webp',
+    imageAlt: 'Pink chrome nails',
     includes: [
       'Nail shaping and filing',
       'Cuticle care',
@@ -64,6 +74,8 @@ export const SERVICES: Service[] = [
     description:
       'The classic clean look — a soft pink base with crisp white tips, in regular or gel finish.',
     theme: '#d4a373',
+    image: '/images/french.webp',
+    imageAlt: 'Classic French manicure with white tips',
     includes: [
       'Nail shaping and filing',
       'Cuticle care',
@@ -81,6 +93,8 @@ export const SERVICES: Service[] = [
     description:
       'A warm soak, gentle exfoliation, nail and cuticle care, a foot massage and polish. Feet, fully cared for.',
     theme: '#2a9d8f',
+    image: '/images/pedicure.webp',
+    imageAlt: 'Rose petal pedicure spa',
     includes: [
       'Warm foot soak',
       'Gentle exfoliation',
@@ -98,6 +112,8 @@ export const SERVICES: Service[] = [
     description:
       'Strong, sculpted length in the shape you love, finished with polish or a simple design.',
     theme: '#9b5de5',
+    image: '/images/chrome.webp',
+    imageAlt: 'Glossy sculpted nails with a chrome finish',
     includes: [
       'Sculpted acrylic length',
       'Shape of your choice',
@@ -115,6 +131,8 @@ export const SERVICES: Service[] = [
     description:
       'Lightweight extensions for instant length, shaped to suit your hands and finished your way.',
     theme: '#4361ee',
+    image: '/images/hero.webp',
+    imageAlt: 'Blush pink nails with gold foil tips',
     includes: [
       'Lightweight extension tips',
       'Shaped to suit your hands',
@@ -132,6 +150,8 @@ export const SERVICES: Service[] = [
     description:
       'Hand-painted details, foil, chrome or florals — tell us your idea or pick from our looks.',
     theme: '#f15bb5',
+    image: '/images/floral.webp',
+    imageAlt: 'Soft floral nail art with white daisies',
     includes: [
       'Your idea, or a look from our gallery',
       'Hand-painted details, foil, chrome or florals',
@@ -148,6 +168,8 @@ export const SERVICES: Service[] = [
     description:
       'Your day, your nails. A calm, unhurried appointment for a flawless bridal set with delicate detail.',
     theme: '#c9a227',
+    image: '/images/bridal.webp',
+    imageAlt: 'Gold glitter bridal nails',
     includes: [
       'A calm, unhurried appointment',
       'A flawless set shaped to your hands',

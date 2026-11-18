@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SERVICES, serviceBySlug, formatDuration } from '@/lib/services'
 import Reveal from '@/components/reveal'
-import ServiceVisual from '@/components/service-visual'
 
 export async function generateStaticParams() {
   return SERVICES.map((s) => ({ slug: s.slug }))
@@ -20,6 +20,19 @@ export async function generateMetadata({
   return {
     title: `${service.name} — GlossnGrace Nails`,
     description: `${service.description} From $${service.priceFrom}, ${formatDuration(service.durationMin)}. Book online in under a minute.`,
+    alternates: { canonical: `/services/${service.slug}` },
+    openGraph: {
+      title: `${service.name} — GlossnGrace Nails`,
+      description: service.description,
+      type: 'website',
+      images: [{ url: service.image, width: 1200, height: 800, alt: service.imageAlt }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${service.name} — GlossnGrace Nails`,
+      description: service.description,
+      images: [service.image],
+    },
   }
 }
 
@@ -53,9 +66,18 @@ export default async function ServiceDetailPage({
 
       <div className="mt-8 grid items-start gap-10 md:grid-cols-2">
         <Reveal>
-          <ServiceVisual theme={service.theme} label={service.slug} />
-          <p className="mt-3 text-center text-sm text-plum-soft">
-            Animated preview of the look — not a video of a real appointment.
+          <div className="foil-edge overflow-hidden rounded-[2rem] shadow-lg">
+            <Image
+              src={service.image}
+              alt={service.imageAlt}
+              width={1200}
+              height={800}
+              priority
+              className="aspect-[3/2] w-full object-cover"
+            />
+          </div>
+          <p className="hand-note mt-4 text-center text-lg text-plum-soft">
+            From our gallery — a look like this one.
           </p>
         </Reveal>
 
@@ -102,7 +124,7 @@ export default async function ServiceDetailPage({
               href="/gallery"
               className="inline-flex min-h-[52px] items-center rounded-full border border-plum/25 px-8 text-base font-semibold transition hover:border-gold hover:text-gold"
             >
-              See real looks
+              See looks
             </Link>
           </div>
 

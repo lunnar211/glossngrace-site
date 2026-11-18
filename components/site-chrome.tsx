@@ -24,6 +24,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       <SiteHeader />
       <main className="flex-1 pb-20 md:pb-0">{children}</main>
       <SiteFooter />
+      {/* Spacer so the fixed mobile Book Now bar never covers the
+          footer's copyright strip when scrolled to the bottom. */}
+      <div className="h-14 md:hidden" aria-hidden="true" />
       {/* Sticky mobile Book Now bar */}
       <a
         href="/book"

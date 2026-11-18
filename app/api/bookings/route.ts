@@ -105,6 +105,31 @@ export async function POST(request: Request) {
   }
 
   const supabase = createServiceClient()
+
+  // Never trust the client's slot list: re-check availability here, so
+  // two simultaneous submissions for the same slot cannot both insert.
+  // The unique index in supabase/glossngrace-bookings-unique-index.sql
+  // is the final guard once the owner applies it in Supabase.
+  const { data: clash, error: clashError } = await supabase
+    .from('glossngrace_bookings')
+    .select('id')
+    .eq('booking_date', booking_date)
+    .eq('booking_time', booking_time)
+    .neq('status', 'cancelled')
+    .limit(1)
+  if (clashError) {
+    return NextResponse.json(
+      { error: 'Could not check availability. Please try again.' },
+      { status: 500 }
+    )
+  }
+  if (clash && clash.length > 0) {
+    return NextResponse.json(
+      { error: 'That time was just booked. Please pick another time.' },
+      { status: 409 }
+    )
+  }
+
   const { data: row, error } = await supabase
     .from('glossngrace_bookings')
     .insert({
@@ -123,6 +148,14 @@ export async function POST(request: Request) {
     .single()
 
   if (error || !row) {
+    // Unique-index violation (23505) = the slot was taken between the
+    // re-check above and the insert.
+    if ((error as { code?: string } | null)?.code === '23505') {
+      return NextResponse.json(
+        { error: 'That time was just booked. Please pick another time.' },
+        { status: 409 }
+      )
+    }
     return NextResponse.json(
       { error: 'Booking could not be saved. Please try again.' },
       { status: 500 }

@@ -60,6 +60,7 @@ export default function BookingForm() {
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
   const [done, setDone] = useState(false);
+  const [bookingRef, setBookingRef] = useState("");
 
   // Preselect a service from ?service= is done in the useState initializer above.
 
@@ -136,6 +137,13 @@ export default function BookingForm() {
         setApiError(data.error || "Booking could not be saved. Please try again.");
         return;
       }
+      // Short reference the customer can quote on the phone or on
+      // Instagram — the first 8 characters of the booking id.
+      setBookingRef(
+        typeof data.id === "string" && data.id.length >= 8
+          ? `GG-${data.id.slice(0, 8).toUpperCase()}`
+          : ""
+      );
       setDone(true);
     } catch {
       setApiError("Booking could not be saved. Please try again.");
@@ -159,6 +167,7 @@ export default function BookingForm() {
     setErrors({});
     setApiError("");
     setDone(false);
+    setBookingRef("");
   }
 
   if (done && chosen) {
@@ -172,9 +181,16 @@ export default function BookingForm() {
         </h2>
         <p className="mx-auto mt-3 max-w-md leading-relaxed text-plum-soft">
           Thank you, {name.trim()}. Your booking request is in — the salon will
-          confirm it, so please keep your phone nearby.
+          confirm it, so please keep your phone nearby. Keep the booking
+          reference below and quote it if you message us.
         </p>
         <dl className="mx-auto mt-6 max-w-sm space-y-2 rounded-2xl bg-ivory p-5 text-left text-[15px]">
+          {bookingRef && (
+            <div className="flex justify-between gap-4">
+              <dt className="text-plum-soft">Booking ref</dt>
+              <dd className="font-semibold">{bookingRef}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-4">
             <dt className="text-plum-soft">Service</dt>
             <dd className="font-semibold">{chosen.name}</dd>
@@ -223,26 +239,44 @@ export default function BookingForm() {
 
   return (
     <div>
-      {/* Step indicator */}
+      {/* Step indicator — finished steps are buttons, so the customer
+          can jump back to a step they already completed. */}
       <ol className="flex items-center gap-2" aria-label="Booking steps">
         {steps.map((label, i) => {
           const n = i + 1;
           const active = step === n;
           const finished = step > n;
+          const stepDot = (
+            <span
+              aria-current={active ? "step" : undefined}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                finished
+                  ? "bg-gold text-white"
+                  : active
+                    ? "bg-plum text-white"
+                    : "bg-blush text-plum-soft"
+              }`}
+            >
+              {finished ? "✓" : n}
+            </span>
+          );
           return (
             <li key={label} className="flex flex-1 items-center gap-2 last:flex-none">
-              <span
-                aria-current={active ? "step" : undefined}
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                  finished
-                    ? "bg-gold text-white"
-                    : active
-                      ? "bg-plum text-white"
-                      : "bg-blush text-plum-soft"
-                }`}
-              >
-                {finished ? "✓" : n}
-              </span>
+              {finished ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrors({});
+                    setStep(n);
+                  }}
+                  aria-label={`Go back to step ${n}: ${label}`}
+                  className="shrink-0 rounded-full"
+                >
+                  {stepDot}
+                </button>
+              ) : (
+                stepDot
+              )}
               <span
                 className={`hidden text-sm font-medium sm:block ${
                   active ? "text-plum" : "text-plum-soft"
@@ -359,7 +393,7 @@ export default function BookingForm() {
             {slotsLoading ? (
               <p className="mt-5 text-plum-soft">Checking open times…</p>
             ) : (
-              <div className="mt-5 grid grid-cols-4 gap-3">
+              <div className="mt-5 max-w-md">
                 {TIME_SLOTS.map((slot) => {
                   const taken = booked.includes(slot) || isPastSlot(slot);
                   return (
@@ -372,23 +406,40 @@ export default function BookingForm() {
                         setErrors({});
                       }}
                       aria-pressed={time === slot}
-                      className={`min-h-[48px] rounded-xl border text-base font-semibold transition ${
+                      className={`flex min-h-[52px] w-full items-center justify-between border-b border-blush px-2 py-3 text-left text-base transition first:border-t ${
                         taken
-                          ? "cursor-not-allowed border-blush bg-ivory text-plum-soft/40 line-through"
+                          ? "cursor-not-allowed text-plum-soft/40"
                           : time === slot
-                            ? "border-gold bg-gold text-white"
-                            : "border-blush bg-white hover:border-gold hover:text-gold"
+                            ? "bg-blush/50 font-semibold text-plum"
+                            : "hover:bg-blush/30"
                       }`}
                     >
-                      {slot}
+                      <span className="flex items-center gap-3">
+                        <span
+                          aria-hidden="true"
+                          className={`h-3 w-3 rounded-full ${
+                            taken
+                              ? "bg-plum-soft/30"
+                              : time === slot
+                                ? "bg-gold"
+                                : "border-2 border-gold bg-white"
+                          }`}
+                        />
+                        <span className={`font-semibold ${taken ? "line-through" : ""}`}>
+                          {slot}
+                        </span>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {taken ? "Booked" : time === slot ? "Your time ✓" : "Open"}
+                      </span>
                     </button>
                   );
                 })}
               </div>
             )}
             <p className="mt-4 text-sm text-plum-soft">
-              Greyed-out times are already booked. Times are shown for one
-              appointment at a time.
+              One appointment at a time, like entries in a day planner.
+              Booked times are crossed out.
             </p>
             {errors.time && (
               <p role="alert" className="mt-3 text-sm font-medium text-red-700">
@@ -483,7 +534,7 @@ export default function BookingForm() {
                       name="payment"
                       checked={paymentMethod === "cod"}
                       onChange={() => setPaymentMethod("cod")}
-                      className="h-5 w-5 accent-[#c9a227]"
+                      className="h-5 w-5 accent-[#8a6d1f]"
                     />
                     <span>
                       <span className="font-medium">Cash at salon (COD)</span>
@@ -511,7 +562,7 @@ export default function BookingForm() {
                   type="checkbox"
                   checked={urgent}
                   onChange={(e) => setUrgent(e.target.checked)}
-                  className="mt-1 h-5 w-5 shrink-0 accent-[#c9a227]"
+                  className="mt-1 h-5 w-5 shrink-0 accent-[#8a6d1f]"
                 />
                 <span>
                   <strong>I need it fast ⚡</strong> — please fit me in as soon
@@ -523,7 +574,7 @@ export default function BookingForm() {
                   type="checkbox"
                   checked={policy}
                   onChange={(e) => setPolicy(e.target.checked)}
-                  className="mt-1 h-5 w-5 shrink-0 accent-[#c9a227]"
+                  className="mt-1 h-5 w-5 shrink-0 accent-[#8a6d1f]"
                 />
                 <span>
                   I understand my booking is a request until the salon confirms

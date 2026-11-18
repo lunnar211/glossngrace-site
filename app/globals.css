@@ -4,7 +4,7 @@
   --color-ivory: #fff9f7;
   --color-blush: #f7dce3;
   --color-blush-deep: #f3c9d6;
-  --color-gold: #c9a227;
+  --color-gold: #8a6d1f;
   --color-gold-soft: #d4af37;
   --color-gold-light: #efe3b0;
   --color-plum: #3d2b2b;
@@ -67,6 +67,53 @@ body {
 ::selection {
   background: var(--color-blush);
   color: var(--color-plum);
+}
+
+/* Visible keyboard focus on every interactive element. Gold on ivory
+   passes AA at this darkness; the ring is the same on dark surfaces. */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Signature motif: a torn gold-foil edge, taken from the gold foil tip
+ * in the hero photo. Used as a painted strip above photos instead of
+ * the same rounded card stamped everywhere. Pure CSS, no gradients.
+ */
+.foil-edge {
+  position: relative;
+}
+.foil-edge::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 8px;
+  background: var(--color-gold);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 35%,
+    92% 100%,
+    79% 30%,
+    64% 90%,
+    48% 35%,
+    32% 100%,
+    16% 45%,
+    0 85%
+  );
+  z-index: 1;
+}
+
+/* Handwritten-style annotation in the artist's voice — Playfair italic,
+   slightly tilted, used as a caption on photos. */
+.hand-note {
+  font-family: var(--font-display);
+  font-style: italic;
+  transform: rotate(-1.5deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

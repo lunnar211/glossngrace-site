@@ -138,7 +138,7 @@ export default function GalleryPage() {
           href={INSTAGRAM_REELS_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-5 inline-flex min-h-[48px] items-center rounded-full bg-gold px-7 font-semibold text-white transition hover:bg-gold-soft"
+          className="mt-5 inline-flex min-h-[48px] items-center rounded-full bg-gold px-7 font-semibold text-white transition hover:bg-plum"
         >
           Watch our Reels @_glossngrace
         </a>

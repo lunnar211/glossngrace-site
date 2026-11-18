@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GlossnGrace Nails
 
-## Getting Started
+A small nails studio website — services and starting prices, online
+booking, a gallery of looks, and an owner-only admin panel. Built with
+Next.js 16 (App Router, Turbopack) + React 19 + Tailwind CSS v4, with
+Supabase for bookings, feedback and admin data.
 
-First, run the development server:
+Live site: https://glossngrace-site.vercel.app
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. The public site works without keys; booking
+and feedback submissions need the Supabase environment variables (see
+below) or they fail gracefully.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Used for |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (admin sign-in) |
+| `SUPABASE_URL` | Server-side Supabase URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side service-role key (bookings, feedback, admin reads) |
+| `GLOSS_ADMIN_EMAIL` | The single email allowed into `/admin` |
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` — development server
+- `npm run build` — production build
+- `npm run lint` — ESLint
+- `npm run start` — serve the production build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Push to `master` on GitHub (`lunnar211/glossngrace-site`) — Vercel
+auto-deploys. Do not deploy via the Vercel MCP/API path.
 
-## Deploy on Vercel
+## Notes for the owner
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Prices in `lib/services.ts` are "from" starting prices in USD, from
+  research — correct them when real prices are confirmed.
+- Location, hours, phone and email are not on the site yet; the site
+  says so honestly ("coming soon") instead of inventing them.
+- The unique booking-slot index in
+  `supabase/glossngrace-bookings-unique-index.sql` must be applied by
+  hand in the Supabase SQL editor (after checking for duplicate
+  bookings); the booking API already re-checks availability in code.
+- Online payment stays "coming soon" — it is shown as disabled and
+  rejected server-side.
